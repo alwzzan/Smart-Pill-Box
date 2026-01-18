@@ -1,10 +1,3 @@
-أكيد 👍
-هذا وصف احترافي وواضح باللغة الإنكليزية، مناسب تمامًا لرفعه على GitHub (README أو Description)، بأسلوب بشري طبيعي وليس “AI-ish”.
-
-تقدر تنسخه كما هو 👇
-
-⸻
-
 🩺 Smart Pill Box – ESP32 Based Medication Reminder System
 
 📌 Project Overview
@@ -96,4 +89,3 @@ If you want, next I can:
 	•	📜 add a Features checklist
 	•	🛡️ help you choose a GitHub license
 
-قلّي شنو تحب تضيف ونسويه فورًا 👌

@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Pill Box - صندوق الدواء الذكي</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --success-color: #16a34a;
+            --warning-color: #f59e0b;
+            --danger-color: #dc2626;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+        }
+
+        * {
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-color), #1d4ed8);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.3rem;
+        }
+
+        .card {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 1.5rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .card-header {
+            background: transparent;
+            border-bottom: 1px solid #e2e8f0;
+            font-weight: 600;
+            font-size: 1.1rem;
+            padding: 1.25rem 1.5rem;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .time-display {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-align: center;
+            letter-spacing: 2px;
+        }
+
+        .date-display {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .status-connected {
+            background-color: #dcfce7;
+            color: var(--success-color);
+        }
+
+        .status-disconnected {
+            background-color: #fee2e2;
+            color: var(--danger-color);
+        }
+
+        .dose-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.25rem;
+            background-color: #f8fafc;
+            border-radius: 12px;
+            margin-bottom: 0.75rem;
+            transition: background-color 0.2s;
+        }
+
+        .dose-item:hover {
+            background-color: #f1f5f9;
+        }
+
+        .dose-time {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .dose-status {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .dose-taken {
+            background-color: #dcfce7 !important;
+        }
+
+        .dose-taken .dose-time {
+            color: var(--success-color);
+            text-decoration: line-through;
+        }
+
+        .btn-add-dose {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 12px;
+            font-weight: 600;
+            border: 2px dashed #cbd5e1;
+            background: transparent;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+
+        .btn-add-dose:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            background-color: #eff6ff;
+        }
+
+        .form-control, .form-select {
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e2e8f0;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            border-radius: 10px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+            border-color: #1d4ed8;
+        }
+
+        .btn-outline-primary {
+            border-radius: 10px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+        }
+
+        .btn-danger {
+            border-radius: 10px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 32px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #cbd5e1;
+            transition: 0.3s;
+            border-radius: 32px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        input:checked + .toggle-slider {
+            background-color: var(--primary-color);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(28px);
+        }
+
+        .next-dose-card {
+            background: linear-gradient(135deg, var(--primary-color), #1d4ed8);
+            color: white;
+        }
+
+        .next-dose-card .card-header {
+            border-bottom-color: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .next-dose-time {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .next-dose-countdown {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .progress-ring {
+            width: 120px;
+            height: 120px;
+        }
+
+        .unlock-btn {
+            transition: all 0.3s;
+        }
+
+        .unlock-btn.locked {
+            background-color: #64748b;
+            border-color: #64748b;
+        }
+
+        .unlock-btn.unlocked {
+            background-color: var(--warning-color);
+            border-color: var(--warning-color);
+        }
+
+        .time-edit-group {
+            opacity: 0.5;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .time-edit-group.unlocked {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            border-radius: 16px;
+            border: none;
+        }
+
+        .modal-header {
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1.25rem 1.5rem;
+        }
+
+        .modal-footer {
+            border-top: 1px solid #e2e8f0;
+            padding: 1rem 1.5rem;
+        }
+
+        .alert {
+            border-radius: 12px;
+            border: none;
+        }
+
+        .refresh-spinner {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .icon-pill {
+            width: 24px;
+            height: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .time-display {
+                font-size: 2.5rem;
+            }
+            
+            .container {
+                padding: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-dark py-3">
+        <div class="container">
+            <span class="navbar-brand">
+                💊 صندوق الدواء الذكي
+            </span>
+            <div>
+                <span id="connectionStatus" class="status-badge status-disconnected">
+                    غير متصل
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container py-4">
+        <!-- Time & Date Card -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>⏰ الوقت والتاريخ</span>
+                <button id="unlockTimeBtn" class="btn btn-sm unlock-btn locked" onclick="toggleTimeUnlock()">
+                    🔒 فتح التعديل
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="time-display" id="currentTime">--:-- --</div>
+                <div class="date-display" id="currentDate">--/--/----</div>
+                
+                <div id="timeEditGroup" class="time-edit-group mt-4">
+                    <div class="row g-3">
+                        <div class="col-4">
+                            <label class="form-label">الساعة</label>
+                            <select id="editHour" class="form-select text-center">
+                                <script>
+                                    for(let i = 1; i <= 12; i++) {
+                                        document.write(`<option value="${i}">${i}</option>`);
+                                    }
+                                </script>
+                            </select>
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label">الدقيقة</label>
+                            <select id="editMinute" class="form-select text-center">
+                                <script>
+                                    for(let i = 0; i < 60; i++) {
+                                        document.write(`<option value="${i}">${i.toString().padStart(2, '0')}</option>`);
+                                    }
+                                </script>
+                            </select>
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label">الفترة</label>
+                            <select id="editAmPm" class="form-select text-center">
+                                <option value="false">ص</option>
+                                <option value="true">م</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary w-100 mt-3" onclick="saveTime()">
+                        حفظ الوقت
+                    </button>
+                    
+                    <hr class="my-4">
+                    
+                    <div class="row g-3">
+                        <div class="col-4">
+                            <label class="form-label">اليوم</label>
+                            <select id="editDay" class="form-select text-center">
+                                <script>
+                                    for(let i = 1; i <= 31; i++) {
+                                        document.write(`<option value="${i}">${i}</option>`);
+                                    }
+                                </script>
+                            </select>
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label">الشهر</label>
+                            <select id="editMonth" class="form-select text-center">
+                                <script>
+                                    for(let i = 1; i <= 12; i++) {
+                                        document.write(`<option value="${i}">${i}</option>`);
+                                    }
+                                </script>
+                            </select>
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label">السنة</label>
+                            <select id="editYear" class="form-select text-center">
+                                <script>
+                                    for(let i = 2024; i <= 2050; i++) {
+                                        document.write(`<option value="${i}">${i}</option>`);
+                                    }
+                                </script>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary w-100 mt-3" onclick="saveDate()">
+                        حفظ التاريخ
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Next Dose Card -->
+        <div class="card next-dose-card">
+            <div class="card-header">
+                ⏳ الجرعة القادمة
+            </div>
+            <div class="card-body text-center">
+                <div class="next-dose-time" id="nextDoseTime">--:-- --</div>
+                <div class="next-dose-countdown" id="nextDoseCountdown">-- دقيقة</div>
+                <div class="mt-3">
+                    <span id="doseProgress">0/0</span> جرعات تم تناولها اليوم
+                </div>
+            </div>
+        </div>
+
+        <!-- Doses List Card -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>💊 مواعيد الجرعات</span>
+                <button class="btn btn-sm btn-outline-primary" onclick="openAddDoseModal()">
+                    + إضافة
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="dosesList">
+                    <!-- Doses will be loaded here -->
+                </div>
+                <div id="noDoses" class="text-center text-muted py-4" style="display: none;">
+                    لا توجد جرعات مجدولة
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Card -->
+        <div class="card">
+            <div class="card-header">
+                ⚙️ الإعدادات
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <strong>🔔 المنبه</strong>
+                        <div class="text-muted small">تفعيل صوت التنبيه</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="alarmToggle" onchange="toggleAlarm()">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
+                <hr>
+                
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>🔄 تحديث تلقائي</strong>
+                        <div class="text-muted small">تحديث البيانات كل 5 ثوان</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="autoRefreshToggle" checked onchange="toggleAutoRefresh()">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Refresh Button -->
+        <button class="btn btn-outline-primary w-100" onclick="fetchStatus()">
+            <span id="refreshIcon">🔄</span> تحديث الآن
+        </button>
+    </div>
+
+    <!-- Add Dose Modal -->
+    <div class="modal fade" id="addDoseModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">إضافة جرعة جديدة</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-4">
+                            <label class="form-label">الساعة</label>
+                            <select id="newDoseHour" class="form-select text-center">
+                                <script>
+                                    for(let i = 1; i <= 12; i++) {
+                                        document.write(`<option value="${i}">${i}</option>`);
+                                    }
+                                </script>
+                            </select>
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label">الدقيقة</label>
+                            <select id="newDoseMinute" class="form-select text-center">
+                                <script>
+                                    for(let i = 0; i < 60; i++) {
+                                        document.write(`<option value="${i}">${i.toString().padStart(2, '0')}</option>`);
+                                    }
+                                </script>
+                            </select>
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label">الفترة</label>
+                            <select id="newDoseAmPm" class="form-select text-center">
+                                <option value="false">ص</option>
+                                <option value="true">م</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="button" class="btn btn-primary" onclick="addDose()">إضافة</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert Container -->
+    <div id="alertContainer" class="position-fixed bottom-0 start-0 end-0 p-3" style="z-index: 1050;">
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // State
+        let autoRefreshInterval = null;
+        let timeUnlocked = false;
+        let currentDoses = [];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchStatus();
+            startAutoRefresh();
+        });
+
+        // Fetch status from API
+        async function fetchStatus() {
+            try {
+                const response = await fetch('/api/status');
+                if (!response.ok) throw new Error('Network error');
+                
+                const data = await response.json();
+                updateUI(data);
+                updateConnectionStatus(true);
+            } catch (error) {
+                console.error('Error fetching status:', error);
+                updateConnectionStatus(false);
+            }
+            
+            // Also fetch doses
+            try {
+                const dosesResponse = await fetch('/api/doses');
+                if (dosesResponse.ok) {
+                    const dosesData = await dosesResponse.json();
+                    updateDosesList(dosesData.doses);
+                }
+            } catch (error) {
+                console.error('Error fetching doses:', error);
+            }
+        }
+
+        // Update UI with status data
+        function updateUI(data) {
+            // Time
+            const hour = data.time.hour;
+            const minute = data.time.minute.toString().padStart(2, '0');
+            const period = data.time.isPM ? 'م' : 'ص';
+            document.getElementById('currentTime').textContent = `${hour}:${minute} ${period}`;
+            
+            // Date
+            const day = data.date.day.toString().padStart(2, '0');
+            const month = data.date.month.toString().padStart(2, '0');
+            const year = data.date.year;
+            document.getElementById('currentDate').textContent = `${day}/${month}/${year}`;
+            
+            // Update edit fields
+            document.getElementById('editHour').value = data.time.hour;
+            document.getElementById('editMinute').value = data.time.minute;
+            document.getElementById('editAmPm').value = data.time.isPM.toString();
+            document.getElementById('editDay').value = data.date.day;
+            document.getElementById('editMonth').value = data.date.month;
+            document.getElementById('editYear').value = data.date.year;
+            
+            // Next dose
+            const minutesToNext = data.minutesToNextDose;
+            if (minutesToNext >= 0) {
+                // Find next dose time from doses list
+                const nextDose = findNextDose();
+                if (nextDose) {
+                    const nextPeriod = nextDose.isPM ? 'م' : 'ص';
+                    document.getElementById('nextDoseTime').textContent = 
+                        `${nextDose.hour}:${nextDose.minute.toString().padStart(2, '0')} ${nextPeriod}`;
+                }
+                
+                if (minutesToNext < 60) {
+                    document.getElementById('nextDoseCountdown').textContent = 
+                        `${minutesToNext} دقيقة`;
+                } else {
+                    const hours = Math.floor(minutesToNext / 60);
+                    const mins = minutesToNext % 60;
+                    document.getElementById('nextDoseCountdown').textContent = 
+                        `${hours} ساعة ${mins} دقيقة`;
+                }
+            } else {
+                document.getElementById('nextDoseTime').textContent = '--:-- --';
+                document.getElementById('nextDoseCountdown').textContent = 'لا توجد جرعات';
+            }
+            
+            // Progress
+            document.getElementById('doseProgress').textContent = 
+                `${data.dosesTaken}/${data.doseCount}`;
+            
+            // Alarm toggle
+            document.getElementById('alarmToggle').checked = data.alarmEnabled;
+            
+            // Time unlock status
+            timeUnlocked = data.timeEditUnlocked;
+            updateTimeUnlockUI();
+        }
+
+        // Find next dose from current doses
+        function findNextDose() {
+            if (currentDoses.length === 0) return null;
+            
+            // Find first non-taken dose
+            for (const dose of currentDoses) {
+                if (!dose.taken && dose.enabled) {
+                    return dose;
+                }
+            }
+            return currentDoses[0];
+        }
+
+        // Update doses list
+        function updateDosesList(doses) {
+            currentDoses = doses;
+            const container = document.getElementById('dosesList');
+            const noDosesMsg = document.getElementById('noDoses');
+            
+            if (!doses || doses.length === 0) {
+                container.innerHTML = '';
+                noDosesMsg.style.display = 'block';
+                return;
+            }
+            
+            noDosesMsg.style.display = 'none';
+            
+            container.innerHTML = doses.map((dose, index) => {
+                const period = dose.isPM ? 'م' : 'ص';
+                const minute = dose.minute.toString().padStart(2, '0');
+                const takenClass = dose.taken ? 'dose-taken' : '';
+                const statusText = dose.taken ? '✓ تم تناولها' : (dose.enabled ? 'في الانتظار' : 'معطلة');
+                
+                return `
+                    <div class="dose-item ${takenClass}">
+                        <div>
+                            <div class="dose-time">${dose.hour}:${minute} ${period}</div>
+                            <div class="dose-status">${statusText}</div>
+                        </div>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteDose(${index})">
+                            🗑️
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Connection status
+        function updateConnectionStatus(connected) {
+            const statusEl = document.getElementById('connectionStatus');
+            if (connected) {
+                statusEl.className = 'status-badge status-connected';
+                statusEl.textContent = '✓ متصل';
+            } else {
+                statusEl.className = 'status-badge status-disconnected';
+                statusEl.textContent = '✕ غير متصل';
+            }
+        }
+
+        // Time unlock
+        async function toggleTimeUnlock() {
+            timeUnlocked = !timeUnlocked;
+            
+            try {
+                const response = await fetch('/api/unlock-time', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ unlock: timeUnlocked })
+                });
+                
+                if (!response.ok) throw new Error('Failed to toggle unlock');
+                
+                updateTimeUnlockUI();
+                showAlert(timeUnlocked ? 'تم فتح التعديل' : 'تم قفل التعديل', 'success');
+            } catch (error) {
+                console.error('Error:', error);
+                timeUnlocked = !timeUnlocked; // Revert
+                showAlert('حدث خطأ', 'danger');
+            }
+        }
+
+        function updateTimeUnlockUI() {
+            const btn = document.getElementById('unlockTimeBtn');
+            const editGroup = document.getElementById('timeEditGroup');
+            
+            if (timeUnlocked) {
+                btn.className = 'btn btn-sm unlock-btn unlocked';
+                btn.innerHTML = '🔓 إغلاق التعديل';
+                editGroup.classList.add('unlocked');
+            } else {
+                btn.className = 'btn btn-sm unlock-btn locked';
+                btn.innerHTML = '🔒 فتح التعديل';
+                editGroup.classList.remove('unlocked');
+            }
+        }
+
+        // Save time
+        async function saveTime() {
+            const hour = parseInt(document.getElementById('editHour').value);
+            const minute = parseInt(document.getElementById('editMinute').value);
+            const isPM = document.getElementById('editAmPm').value === 'true';
+            
+            try {
+                const response = await fetch('/api/time', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ hour, minute, isPM })
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Failed');
+                }
+                
+                showAlert('تم حفظ الوقت بنجاح', 'success');
+                fetchStatus();
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert(error.message || 'حدث خطأ أثناء حفظ الوقت', 'danger');
+            }
+        }
+
+        // Save date
+        async function saveDate() {
+            const day = parseInt(document.getElementById('editDay').value);
+            const month = parseInt(document.getElementById('editMonth').value);
+            const year = parseInt(document.getElementById('editYear').value);
+            
+            try {
+                const response = await fetch('/api/date', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ day, month, year })
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Failed');
+                }
+                
+                showAlert('تم حفظ التاريخ بنجاح', 'success');
+                fetchStatus();
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert(error.message || 'حدث خطأ أثناء حفظ التاريخ', 'danger');
+            }
+        }
+
+        // Add dose modal
+        function openAddDoseModal() {
+            const modal = new bootstrap.Modal(document.getElementById('addDoseModal'));
+            modal.show();
+        }
+
+        // Add dose
+        async function addDose() {
+            const hour = parseInt(document.getElementById('newDoseHour').value);
+            const minute = parseInt(document.getElementById('newDoseMinute').value);
+            const isPM = document.getElementById('newDoseAmPm').value === 'true';
+            
+            try {
+                const response = await fetch('/api/dose', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ hour, minute, isPM })
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Failed');
+                }
+                
+                bootstrap.Modal.getInstance(document.getElementById('addDoseModal')).hide();
+                showAlert('تمت إضافة الجرعة بنجاح', 'success');
+                fetchStatus();
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert(error.message || 'حدث خطأ أثناء إضافة الجرعة', 'danger');
+            }
+        }
+
+        // Delete dose
+        async function deleteDose(index) {
+            if (!confirm('هل أنت متأكد من حذف هذه الجرعة؟')) return;
+            
+            try {
+                const response = await fetch(`/api/dose?id=${index}`, {
+                    method: 'DELETE'
+                });
+                
+                if (!response.ok) throw new Error('Failed');
+                
+                showAlert('تم حذف الجرعة', 'success');
+                fetchStatus();
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('حدث خطأ أثناء حذف الجرعة', 'danger');
+            }
+        }
+
+        // Toggle alarm
+        async function toggleAlarm() {
+            const enabled = document.getElementById('alarmToggle').checked;
+            
+            try {
+                const response = await fetch('/api/alarm', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ enabled })
+                });
+                
+                if (!response.ok) throw new Error('Failed');
+                
+                showAlert(enabled ? 'تم تفعيل المنبه' : 'تم إيقاف المنبه', 'success');
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('alarmToggle').checked = !enabled;
+                showAlert('حدث خطأ', 'danger');
+            }
+        }
+
+        // Auto refresh
+        function toggleAutoRefresh() {
+            const enabled = document.getElementById('autoRefreshToggle').checked;
+            if (enabled) {
+                startAutoRefresh();
+            } else {
+                stopAutoRefresh();
+            }
+        }
+
+        function startAutoRefresh() {
+            if (autoRefreshInterval) return;
+            autoRefreshInterval = setInterval(fetchStatus, 5000);
+        }
+
+        function stopAutoRefresh() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+                autoRefreshInterval = null;
+            }
+        }
+
+        // Show alert
+        function showAlert(message, type = 'info') {
+            const container = document.getElementById('alertContainer');
+            const id = 'alert-' + Date.now();
+            
+            const alertHtml = `
+                <div id="${id}" class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            
+            container.insertAdjacentHTML('beforeend', alertHtml);
+            
+            setTimeout(() => {
+                const alert = document.getElementById(id);
+                if (alert) {
+                    alert.classList.remove('show');
+                    setTimeout(() => alert.remove(), 150);
+                }
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
